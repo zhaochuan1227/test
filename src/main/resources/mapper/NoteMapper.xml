@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"      
+ "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+<mapper namespace="com.smart.dao.NoteDao">
+	<select id="findNotesByNoteBookId" parameterType="String"
+		resultType="map">
+		select
+			cn_note_id id,
+			cn_notebook_id noteBookId,
+			cn_note_title title
+		from
+			cn_note
+		where
+			cn_notebook_id = #{noteBookId} <!-- and cn_note_status_id = #{statusId} -->
+	</select>
+	<select id="findNoteBodyById" parameterType="String"
+		resultType="com.smart.entity.Note">
+		select
+			cn_note_id id,
+			cn_notebook_id notebookId,
+			cn_user_id userId,
+			cn_note_status_id statusId,
+			cn_note_type_id typeId,
+			cn_note_title title,
+			cn_note_body body,
+			cn_note_create_time createTime,
+			cn_note_last_modify_time lastModifyTime
+		from
+			cn_note
+		where
+			cn_note_id = #{noteId}
+	</select>
+	<update id="updateNote" parameterType="com.smart.entity.Note">
+		update
+			cn_note
+		set
+			<if test="notebookId != null">
+				cn_notebook_id = #{notebookId},
+			</if>
+			<if test="statusId != null">
+				cn_note_status_id = #{statusId},
+			</if>
+			<if test="typeId != null">
+				cn_note_type_id = #{typeId},
+			</if>
+			<if test="title !=null">
+				cn_note_title = #{title},
+			</if>
+			<if test="body !=null">
+				cn_note_body = #{body},
+			</if>
+			cn_note_last_modify_time = #{lastModifyTime}
+		where
+			cn_note_id = #{id}
+
+	</update>
+	<insert id="saveNote" parameterType="com.smart.entity.Note">
+		insert into cn_note(
+			cn_note_id,
+			cn_notebook_id,
+			cn_user_id,
+			cn_note_status_id,
+			cn_note_type_id,
+			cn_note_title,
+			cn_note_body,
+			cn_note_create_time,
+			cn_note_last_modify_time
+		)values(
+			#{id},
+			#{notebookId},
+			#{userId},
+			#{statusId},
+			#{typeId},
+			#{title},
+			#{body},
+			#{createTime},
+			#{lastModifyTime}
+		)
+	</insert>
+	<delete id="deleteNote">
+		delete from
+			cn_note
+		where 
+			cn_note_id = #{id}
+	</delete>
+	<delete id="deleteNotes">
+		delete from
+			cn_note
+		where 
+			cn_note_id in
+		<foreach collection="array" item="id" open="(" separator="," close=")">
+			 #{id}
+		</foreach>
+	
+	</delete>
+	<select id="countNotes" resultType="int">
+		select
+			count(*)
+		from
+			cn_note
+		where
+			cn_note_id in
+		<foreach collection="list" item="id" open="(" separator="," close=")">
+			 #{id}
+		</foreach>
+	</select>
+	<select id="countNotesByParams" parameterType="map" resultType="int">
+		select
+			count(*)
+		from
+			cn_note
+		<where>
+			<if test="userId != null">
+				cn_user_id = #{userId}
+			</if>
+			<if test="statusId != null">
+				 and cn_note_status_id = #{statusId}
+			</if>
+		</where>
+	</select>
+
+</mapper>
